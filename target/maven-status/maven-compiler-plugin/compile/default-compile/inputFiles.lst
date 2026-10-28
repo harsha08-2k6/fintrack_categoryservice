@@ -1,0 +1,7 @@
+L:\FinTrack\backend\category-service\src\main\java\com\spendwise\category\CategoryApplication.java
+L:\FinTrack\backend\category-service\src\main\java\com\spendwise\category\controller\CategoryController.java
+L:\FinTrack\backend\category-service\src\main\java\com\spendwise\category\dto\CategoryRequest.java
+L:\FinTrack\backend\category-service\src\main\java\com\spendwise\category\dto\CategoryResponse.java
+L:\FinTrack\backend\category-service\src\main\java\com\spendwise\category\entity\Category.java
+L:\FinTrack\backend\category-service\src\main\java\com\spendwise\category\repository\CategoryRepository.java
+L:\FinTrack\backend\category-service\src\main\java\com\spendwise\category\service\CategoryService.java
