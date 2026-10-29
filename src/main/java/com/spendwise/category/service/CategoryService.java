@@ -46,7 +46,7 @@ public class CategoryService {
                 .icon(request.getIcon() != null && !request.getIcon().isBlank() ? request.getIcon() : "tag")
                 .colorCode(request.getColorCode() != null && !request.getColorCode().isBlank() ? request.getColorCode() : "#6366f1")
                 .budgetLimit(request.getBudgetLimit() != null ? request.getBudgetLimit() : BigDecimal.ZERO)
-                .userId(userId != null ? userId : request.getUserId())
+                .userId(userId)
                 .build();
 
         Category saved = categoryRepository.save(category);
@@ -57,7 +57,7 @@ public class CategoryService {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
 
-        if (userId != null && category.getUserId() != null && !category.getUserId().equals(userId)) {
+        if (userId == null || category.getUserId() == null || !category.getUserId().equals(userId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to edit this category");
         }
 
@@ -75,7 +75,7 @@ public class CategoryService {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
 
-        if (userId != null && category.getUserId() != null && !category.getUserId().equals(userId)) {
+        if (userId == null || category.getUserId() == null || !category.getUserId().equals(userId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to delete this category");
         }
 

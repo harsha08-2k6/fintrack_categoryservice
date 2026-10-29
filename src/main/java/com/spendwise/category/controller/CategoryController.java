@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -20,13 +21,18 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
+    private void validateUser(Long userId) {
+        if (userId == null || userId <= 0) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User authentication required");
+        }
+    }
+
     @GetMapping
     public ResponseEntity<List<CategoryResponse>> getAllCategories(
-            @RequestHeader(value = "X-User-Id", required = false) Long userId,
-            @RequestParam(value = "userId", required = false) Long paramUserId
+            @RequestHeader(value = "X-User-Id", required = false) Long userId
     ) {
-        Long resolvedUserId = userId != null ? userId : paramUserId;
-        return ResponseEntity.ok(categoryService.getCategories(resolvedUserId));
+        validateUser(userId);
+        return ResponseEntity.ok(categoryService.getCategories(userId));
     }
 
     @GetMapping("/{id}")
@@ -39,6 +45,7 @@ public class CategoryController {
             @Valid @RequestBody CategoryRequest request,
             @RequestHeader(value = "X-User-Id", required = false) Long userId
     ) {
+        validateUser(userId);
         CategoryResponse response = categoryService.createCategory(request, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -49,6 +56,7 @@ public class CategoryController {
             @Valid @RequestBody CategoryRequest request,
             @RequestHeader(value = "X-User-Id", required = false) Long userId
     ) {
+        validateUser(userId);
         CategoryResponse response = categoryService.updateCategory(id, request, userId);
         return ResponseEntity.ok(response);
     }
@@ -58,6 +66,7 @@ public class CategoryController {
             @PathVariable Long id,
             @RequestHeader(value = "X-User-Id", required = false) Long userId
     ) {
+        validateUser(userId);
         categoryService.deleteCategory(id, userId);
         return ResponseEntity.noContent().build();
     }
