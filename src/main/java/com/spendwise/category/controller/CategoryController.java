@@ -29,21 +29,25 @@ public class CategoryController {
 
     @GetMapping
     public ResponseEntity<List<CategoryResponse>> getAllCategories(
-            @RequestHeader(value = "X-User-Id", required = false) Long userId
+            @RequestHeader(value = "X-Authenticated-User-Id", required = false) Long userId
     ) {
         validateUser(userId);
         return ResponseEntity.ok(categoryService.getCategories(userId));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CategoryResponse> getCategoryById(@PathVariable Long id) {
-        return ResponseEntity.ok(categoryService.getCategoryById(id));
+    public ResponseEntity<CategoryResponse> getCategoryById(
+            @PathVariable Long id,
+            @RequestHeader(value = "X-Authenticated-User-Id", required = false) Long userId
+    ) {
+        validateUser(userId);
+        return ResponseEntity.ok(categoryService.getCategoryById(id, userId));
     }
 
     @PostMapping
     public ResponseEntity<CategoryResponse> createCategory(
             @Valid @RequestBody CategoryRequest request,
-            @RequestHeader(value = "X-User-Id", required = false) Long userId
+            @RequestHeader(value = "X-Authenticated-User-Id", required = false) Long userId
     ) {
         validateUser(userId);
         CategoryResponse response = categoryService.createCategory(request, userId);
@@ -54,7 +58,7 @@ public class CategoryController {
     public ResponseEntity<CategoryResponse> updateCategory(
             @PathVariable Long id,
             @Valid @RequestBody CategoryRequest request,
-            @RequestHeader(value = "X-User-Id", required = false) Long userId
+            @RequestHeader(value = "X-Authenticated-User-Id", required = false) Long userId
     ) {
         validateUser(userId);
         CategoryResponse response = categoryService.updateCategory(id, request, userId);
@@ -64,7 +68,7 @@ public class CategoryController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCategory(
             @PathVariable Long id,
-            @RequestHeader(value = "X-User-Id", required = false) Long userId
+            @RequestHeader(value = "X-Authenticated-User-Id", required = false) Long userId
     ) {
         validateUser(userId);
         categoryService.deleteCategory(id, userId);

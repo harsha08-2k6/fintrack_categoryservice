@@ -9,7 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,20 +31,25 @@ public class CategoryService {
         } else {
             categories = categoryRepository.findAll();
         }
-        return categories.stream()
+        Map<String, Category> uniqueCategories = new LinkedHashMap<>();
+        categories.forEach(category -> uniqueCategories.putIfAbsent(normalizeName(category.getName()), category));
+        return uniqueCategories.values().stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
-    public CategoryResponse getCategoryById(Long id) {
+    public CategoryResponse getCategoryById(Long id, Long userId) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found with id: " + id));
+        if (category.getUserId() != null && !category.getUserId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to view this category");
+        }
         return mapToResponse(category);
     }
 
     public CategoryResponse createCategory(CategoryRequest request, Long userId) {
-        String trimmedName = request.getName().trim();
-        if (categoryRepository.existsByUserIdAndNameIgnoreCase(userId, trimmedName)) {
+        String trimmedName = normalizeDisplayName(request.getName());
+        if (categoryRepository.existsAvailableForUserByNormalizedName(userId, trimmedName)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "A category with the name '" + trimmedName + "' already exists");
         }
 
@@ -66,9 +74,9 @@ public class CategoryService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to edit this category");
         }
 
-        String trimmedName = request.getName().trim();
-        if (!category.getName().equalsIgnoreCase(trimmedName) &&
-                categoryRepository.existsByUserIdAndNameIgnoreCase(userId, trimmedName)) {
+        String trimmedName = normalizeDisplayName(request.getName());
+        if (!normalizeName(category.getName()).equals(normalizeName(trimmedName)) &&
+                categoryRepository.existsAvailableForUserByNormalizedName(userId, trimmedName)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "A category with the name '" + trimmedName + "' already exists");
         }
 
@@ -105,5 +113,13 @@ public class CategoryService {
                 .isCustom(category.getUserId() != null)
                 .createdAt(category.getCreatedAt())
                 .build();
+    }
+
+    private String normalizeName(String name) {
+        return normalizeDisplayName(name).toLowerCase(Locale.ROOT);
+    }
+
+    private String normalizeDisplayName(String name) {
+        return name == null ? "" : name.trim().replaceAll("\\s+", " ");
     }
 }

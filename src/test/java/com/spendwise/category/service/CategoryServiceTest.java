@@ -51,7 +51,7 @@ class CategoryServiceTest {
                 .userId(100L)
                 .build();
 
-        when(categoryRepository.existsByUserIdAndNameIgnoreCase(100L, "Food & Dining")).thenReturn(false);
+        when(categoryRepository.existsAvailableForUserByNormalizedName(100L, "Food & Dining")).thenReturn(false);
         when(categoryRepository.save(any(Category.class))).thenReturn(saved);
 
         CategoryResponse res = categoryService.createCategory(req, 100L);
@@ -70,7 +70,7 @@ class CategoryServiceTest {
         CategoryRequest req = new CategoryRequest();
         req.setName("Shopping");
 
-        when(categoryRepository.existsByUserIdAndNameIgnoreCase(100L, "Shopping")).thenReturn(true);
+        when(categoryRepository.existsAvailableForUserByNormalizedName(100L, "Shopping")).thenReturn(true);
 
         ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> {
             categoryService.createCategory(req, 100L);
@@ -79,6 +79,35 @@ class CategoryServiceTest {
         assertEquals(409, ex.getStatusCode().value());
         assertTrue(ex.getReason().contains("already exists"));
         verify(categoryRepository, never()).save(any(Category.class));
+    }
+
+    @Test
+    @DisplayName("Create category rejects duplicate names after trimming and case normalization")
+    void testCreateNormalizedDuplicateCategoryFails() {
+        CategoryRequest req = new CategoryRequest();
+        req.setName("  food   &   dining  ");
+
+        when(categoryRepository.existsAvailableForUserByNormalizedName(100L, "food & dining"))
+                .thenReturn(true);
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () ->
+                categoryService.createCategory(req, 100L));
+
+        assertEquals(409, ex.getStatusCode().value());
+        verify(categoryRepository, never()).save(any(Category.class));
+    }
+
+    @Test
+    @DisplayName("List categories returns one record for duplicate normalized names")
+    void testGetCategoriesDeduplicatesNormalizedNames() {
+        Category first = Category.builder().id(1L).name(" Food & Dining ").userId(null).build();
+        Category duplicate = Category.builder().id(2L).name("food  &  dining").userId(100L).build();
+        when(categoryRepository.findAllAvailableForUser(100L)).thenReturn(List.of(first, duplicate));
+
+        List<CategoryResponse> result = categoryService.getCategories(100L);
+
+        assertEquals(1, result.size());
+        assertEquals(1L, result.get(0).getId());
     }
 
     @Test
@@ -100,7 +129,7 @@ class CategoryServiceTest {
         updateReq.setBudgetLimit(BigDecimal.valueOf(5000));
 
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(existing));
-        when(categoryRepository.existsByUserIdAndNameIgnoreCase(100L, "New Name")).thenReturn(false);
+        when(categoryRepository.existsAvailableForUserByNormalizedName(100L, "New Name")).thenReturn(false);
         when(categoryRepository.save(any(Category.class))).thenAnswer(i -> i.getArgument(0));
 
         CategoryResponse res = categoryService.updateCategory(1L, updateReq, 100L);
