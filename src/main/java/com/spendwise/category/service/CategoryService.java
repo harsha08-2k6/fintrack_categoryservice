@@ -40,8 +40,13 @@ public class CategoryService {
     }
 
     public CategoryResponse createCategory(CategoryRequest request, Long userId) {
+        String trimmedName = request.getName().trim();
+        if (categoryRepository.existsByUserIdAndNameIgnoreCase(userId, trimmedName)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "A category with the name '" + trimmedName + "' already exists");
+        }
+
         Category category = Category.builder()
-                .name(request.getName().trim())
+                .name(trimmedName)
                 .description(request.getDescription())
                 .icon(request.getIcon() != null && !request.getIcon().isBlank() ? request.getIcon() : "tag")
                 .colorCode(request.getColorCode() != null && !request.getColorCode().isBlank() ? request.getColorCode() : "#6366f1")
@@ -61,7 +66,13 @@ public class CategoryService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to edit this category");
         }
 
-        category.setName(request.getName().trim());
+        String trimmedName = request.getName().trim();
+        if (!category.getName().equalsIgnoreCase(trimmedName) &&
+                categoryRepository.existsByUserIdAndNameIgnoreCase(userId, trimmedName)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "A category with the name '" + trimmedName + "' already exists");
+        }
+
+        category.setName(trimmedName);
         if (request.getDescription() != null) category.setDescription(request.getDescription());
         if (request.getIcon() != null) category.setIcon(request.getIcon());
         if (request.getColorCode() != null) category.setColorCode(request.getColorCode());
