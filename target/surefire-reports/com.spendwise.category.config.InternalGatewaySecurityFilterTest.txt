@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.spendwise.category.config.InternalGatewaySecurityFilterTest
+-------------------------------------------------------------------------------
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.126 s -- in com.spendwise.category.config.InternalGatewaySecurityFilterTest

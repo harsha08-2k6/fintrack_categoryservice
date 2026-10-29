@@ -1,9 +1,9 @@
+com\spendwise\category\dto\CategoryResponse.class
 com\spendwise\category\entity\Category$Builder.class
+com\spendwise\category\service\CategoryService.class
 com\spendwise\category\CategoryApplication.class
 com\spendwise\category\dto\CategoryResponse$Builder.class
+com\spendwise\category\dto\CategoryRequest.class
 com\spendwise\category\repository\CategoryRepository.class
 com\spendwise\category\controller\CategoryController.class
-com\spendwise\category\dto\CategoryResponse.class
-com\spendwise\category\service\CategoryService.class
-com\spendwise\category\dto\CategoryRequest.class
 com\spendwise\category\entity\Category.class

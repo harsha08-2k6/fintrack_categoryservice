@@ -1,4 +1,5 @@
 d:\FinTrack\backend\category-service\src\main\java\com\spendwise\category\CategoryApplication.java
+d:\FinTrack\backend\category-service\src\main\java\com\spendwise\category\config\InternalGatewaySecurityFilter.java
 d:\FinTrack\backend\category-service\src\main\java\com\spendwise\category\controller\CategoryController.java
 d:\FinTrack\backend\category-service\src\main\java\com\spendwise\category\dto\CategoryRequest.java
 d:\FinTrack\backend\category-service\src\main\java\com\spendwise\category\dto\CategoryResponse.java
