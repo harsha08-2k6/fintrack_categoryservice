@@ -40,7 +40,6 @@ public class CategoryController {
             @PathVariable Long id,
             @RequestHeader(value = "X-Authenticated-User-Id", required = false) Long userId
     ) {
-        validateUser(userId);
         return ResponseEntity.ok(categoryService.getCategoryById(id, userId));
     }
 
